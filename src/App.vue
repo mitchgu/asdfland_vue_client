@@ -1,23 +1,29 @@
-<template>
-  <div id="app">
-    <img src="./assets/logo.png">
-    <router-view></router-view>
-  </div>
+<template lang="pug">
+  div#app
+    router-view
 </template>
 
 <script>
 export default {
-  name: 'app'
+  name: 'App'
 }
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style lang="stylus">
+@import 'assets/settings.styl'
+
+#app 
+  min-height: 100vh
+  overflow: hidden
+  background-color: bg-color
+  font-family: base-font
+  
+ul
+  list-style-type: none
+  margin: 0
+  padding: 0
+  
+input, select, option
+  &:focus
+    outline: none
 </style>
