@@ -1,10 +1,10 @@
 <template lang="pug">
   #dash(:class="{collapsed: collapsed}")
-    #toggle-div
-      label collapsed
-      input#toggle(v-model="collapsed",type="checkbox")
+    label#toggle-label(for="toggle", v-text="collapsed? 'Expand' : 'Collapse'")
+    input#toggle(v-model="collapsed", type="checkbox", style="display: none")
     #creator-wrap
       #brand {{ siteName }}
+      #subtitle A revolutionary weight loss program for obese links
       creator
     #listing-wrap
       #listing
@@ -45,19 +45,22 @@ export default {
   flex: 0
   padding: 0 m-space
   #brand
-    display: block
     font-family: chalk-font
     color: chalk-color
     font-size: brand-font-size
     text-align: center
     margin-top: l-space
-    margin-bottom: s-space
+  #subtitle
+    text-align: center
+    margin-bottom: m-space
+    color: darken(chalk-color, 5%)
+    font-size: s-font-size
 
 #listing-wrap
   flex: 1
   #listing
     width: 100%
-    height: 120vh
+    height: 100vh
     background-color: red
 
 #dash.collapsed
@@ -66,11 +69,13 @@ export default {
   #listing-wrap
     flex: 0
   
-#toggle-div
+#toggle-label
+  display: inline-block
   position: fixed
-  padding: 10px
-  bottom: 0
-  left: 0
+  padding: s-space
+  border-radius: m-radius
+  bottom: s-space
+  left: s-space
   background-color: white
 
 </style>

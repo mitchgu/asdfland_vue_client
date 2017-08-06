@@ -1,19 +1,18 @@
 <template lang="pug">
-  #creator
-    h1 Destination
-    input#dest(type="text", autofocus, v-model="dest")
-    h1 Link type
+  #creator(:class="{collapsed: collapsed}")
+    input#dest(type="text", autofocus, v-model="dest", placeholder="paste your link here")
     section#link-type-selector
+      span Link type:
       a(href="#"
         v-for="lt in linkTypes"
         :class="{active: linkType == lt}"
         @click.prevent="linkType = lt"
         ref="linkTypeToggles") {{ lt }}
-    svg#mustache(height="25", width="280", ref="mustacheSVG")
+    svg#mustache(height="18", width="300", ref="mustacheSVG")
       path(:d="`M${this.coords.underlineLeft} 0 L ${this.coords.underlineRight} 0`", stroke="#4a9e55", fill="transparent", stroke-width="3")
-      path(d="M0 25 Q 0 18 20 18", stroke="#4a9e55", stroke-width="2" , fill="transparent")
-      path(:d="`M20 18 h ${this.coords.mustacheCenter} l 5 -8 l 5 8 h ${230 - this.coords.mustacheCenter}`", stroke="#4a9e55", stroke-width="2" , fill="transparent")
-      path(d="M260 18 Q 280 18 280 25", stroke="#4a9e55", stroke-width="2" , fill="transparent")
+      path(d="M0 18 Q 5 13 20 13", stroke="#4a9e55", stroke-width="2" , fill="transparent")
+      path(:d="`M20 13 h ${this.coords.mustacheCenter} l 5 -5 l 5 5 h ${250 - this.coords.mustacheCenter}`", stroke="#4a9e55", stroke-width="2" , fill="transparent")
+      path(d="M280 13 Q 295 13 300 18", stroke="#4a9e55", stroke-width="2" , fill="transparent")
     
     #carousel-wrap(:style="{height: coords.carouselHeight + 'px'}")
       section#carousel(:style="{marginLeft: coords.carouselOffset + 'px', height: coords.carouselHeight + 'px'}")
@@ -34,27 +33,36 @@
               label # Words
               input(type="range", min=1, max=5, v-model="readableWords")
               span.readout(v-text="readableWords")
-        .panel(ref="build-your-own-panel")
+            li#expiry
+              label Expires in
+              select(v-model="expires")
+                option(v-for="(expirevalue, expirekey) in expireOptions"
+                       :value="expirekey") {{ expirevalue }}
+        .panel(ref="custom-panel")
           ul.fields
             li#random-length
               label asdf.land/
               input(type="text", size="18")
-    ul.fields
-      li#description
-        label Description
-        input(type="text", size="18", placeholder="Optional")
-      li#password
-        label Password
-        input(type="password", size="18", placeholder="None")
-      li#public-stats
-        label Stats page
-        #stats-radio
-          input#disable(type="radio", v-model="stats", value="disable")
-          label(for="disable") disable
-          input#enable(type="radio", v-model="stats", value="enable")
-          label(for="enable") enable
 
-    button#create CREATE
+    a#options-toggle(@click="collapsed = !collapsed"
+                     v-text="`${collapsed ? '> show' : '- hide'} more options`")
+    #options
+      ul.fields
+        li#description
+          label Description
+          input(type="text", size="18", placeholder="None")
+        li#password
+          label Password
+          input(type="password", size="18", placeholder="None")
+        li#public-analytics
+          label Link analytics
+          #analytics-radio
+            input#disable(type="radio", v-model="analytics", value="disable")
+            label(for="disable") disable
+            input#enable(type="radio", v-model="analytics", value="enable")
+            label(for="enable") enable
+
+    button#create create shortlink
 </template>
 
 <script>
@@ -65,11 +73,12 @@ export default {
   data () {
     return {
       dest: '',
+      collapsed: true,
       linkType: 'random',
       linkTypes: [
         'random',
         'readable',
-        'build-your-own'
+        'custom'
       ],
       randomLength: 8,
       readableWords: 2,
@@ -82,7 +91,15 @@ export default {
         bands: 'Band names'
       },
       dictionary: 'hitchiker',
-      stats: 'enable',
+      analytics: 'enable',
+      expires: '5',
+      expireOptions: {
+        '5': '5 minutes',
+        '30': '30 minutes',
+        '60': '1 hour',
+        '360': '6 hours',
+        '1440': '1 day'
+      },
       coords: {
         mustacheCenter: 0,
         underlineLeft: 0,
@@ -102,7 +119,7 @@ export default {
       }
       new TWEEN.Tween(this.$data.coords)
         .easing(TWEEN.Easing.Quartic.InOut)
-        .to(coords, 500)
+        .to(coords, 400)
         .start()
       animate()
     }
@@ -120,7 +137,7 @@ export default {
         mustacheCenter: toggleCenter - svgBounds.left - 25,
         underlineLeft: toggleBounds.left - svgBounds.left,
         underlineRight: toggleBounds.right - svgBounds.left,
-        carouselOffset: -320 * index,
+        carouselOffset: -340 * index,
         carouselHeight: panel.clientHeight
       }
     }
@@ -142,7 +159,7 @@ export default {
 #creator
   width: creator-width
   margin: 0 auto
-  padding: s-space m-space
+  padding: 1.5*m-space
   display: flex
   flex-direction: column
   box-shadow: 0px 0px 5px #0A2309
@@ -161,6 +178,24 @@ export default {
   #dest
     font-size: m-font-size
     padding: s-space
+    border-radius: m-radius
+    
+  #options-toggle
+    cursor: pointer
+    padding: s-space 0 s-space;
+    color: faded-chalk-color
+    font-size: s-font-size
+    
+  #options
+    overflow: hidden
+    transition: max-height .4s
+    max-height: 130px
+    margin-top: - xs-space
+    >h1 
+      margin-bottom: xs-space
+
+  &.collapsed #options
+    max-height: 0px
     
   input[type="text"], input[type="password"]
     @extend .shaded
@@ -175,11 +210,14 @@ export default {
   #link-type-selector
     display: flex
     justify-content: space-between
-    a
+    margin-top: s-space
+    margin-bottom: -1px
+    a, span
       display: inline-block
+      padding: xs-space 0 0
+    a
       text-decoration: none
       color: faded-chalk-color
-      padding: xxs-space 0 0
       transition: color .7s
       &.active
         color: primary-color
@@ -271,7 +309,7 @@ export default {
     input[type="text"], input[type="password"]
       flex: 6
     
-    #stats-radio
+    #analytics-radio
       flex: 6
       display: flex
       label
@@ -279,6 +317,8 @@ export default {
         flex: 1
         color: chalk-color
         text-align: center
+        font-size: s-font-size
+        line-height: m-space
         
       input[type="radio"]:checked + label
         background-color: primary-color
@@ -304,11 +344,11 @@ export default {
     
   #create
     font-size: m-font-size
-    background-color: #E6E6E6
+    background-color: chalk-color
     color: darken(primary-color, 25%)
     border: none
     outline: none
-    margin: s-space 0 m-space
+    margin: s-space 0 0
     border-radius: m-radius
     padding: s-space 0
     letter-spacing: 1px
@@ -318,12 +358,12 @@ export default {
     box-shadow: 0 xs-space #AAAAAA
     
     &:hover
-      background-color: chalk-color
+      background-color: #FFF
       
     &:active
       background-color: primary-color
       color: chalk-color
-      box-shadow: 0 xxs-space darken(primary-color, 40%)
-      margin: (s-space + xxs-space) 0 (m-space - xxs-space)
+      box-shadow: 0 (xs-space - xxs-space) darken(primary-color, 40%)
+      margin: (s-space + xxs-space) 0 ( - xxs-space)
 
 </style>
