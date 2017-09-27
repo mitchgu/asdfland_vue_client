@@ -42,7 +42,7 @@
           ul.fields
             li#random-length
               label asdf.land/
-              input(type="text", size="18")
+              input(type="text", v-model="customSlug", size="18")
 
     a#options-toggle(@click="collapsed = !collapsed"
                      v-text="`${collapsed ? '> show' : '- hide'} more options`")
@@ -50,10 +50,10 @@
       ul.fields
         li#description
           label Description
-          input(type="text", size="18", placeholder="None")
+          input(type="text", v-model="description", size="18", placeholder="None")
         li#password
           label Password
-          input(type="password", size="18", placeholder="None")
+          input(type="password", v-model="password", size="18", placeholder="None")
         li#public-analytics
           label Link analytics
           #analytics-radio
@@ -62,7 +62,9 @@
             input#enable(type="radio", v-model="analytics", value="enable")
             label(for="enable") enable
 
-    button#create create shortlink
+    button#create(@click="showLog = !showLog;") create shortlink
+
+    textarea#log(:class="{'show-log': showLog}", v-text="log")
 </template>
 
 <script>
@@ -100,17 +102,24 @@ export default {
         '360': '6 hours',
         '1440': '1 day'
       },
+      customSlug: '',
+      description: '',
+      password: '',
       coords: {
         mustacheCenter: 0,
         underlineLeft: 0,
         underlineRight: 0,
         carouselOffset: 0,
         carouselHeight: 0
-      }
+      },
+      log: '',
+      showLog: false,
+      mountTime: new Date()
     }
   },
   watch: {
-    linkType (newType) {
+    linkType (newType, oldType) {
+      this.logStateChange('linkType', oldType, newType)
       var coords = this.calcSVGCoords()
       function animate () {
         if (TWEEN.update()) {
@@ -122,6 +131,33 @@ export default {
         .to(coords, 400)
         .start()
       animate()
+    },
+    dest (newState, oldState) {
+      this.logStateChange('dest', oldState, newState)
+    },
+    randomLength (newState, oldState) {
+      this.logStateChange('randomLength', oldState, newState)
+    },
+    readableWords (newState, oldState) {
+      this.logStateChange('readableWords', oldState, newState)
+    },
+    dictionary (newState, oldState) {
+      this.logStateChange('dictionary', oldState, newState)
+    },
+    analytics (newState, oldState) {
+      this.logStateChange('analytics', oldState, newState)
+    },
+    expires (newState, oldState) {
+      this.logStateChange('expires', oldState, newState)
+    },
+    customSlug (newState, oldState) {
+      this.logStateChange('customSlug', oldState, newState)
+    },
+    description (newState, oldState) {
+      this.logStateChange('description', oldState, newState)
+    },
+    password (newState, oldState) {
+      this.logStateChange('password', oldState, newState)
     }
   },
   methods: {
@@ -140,12 +176,20 @@ export default {
         carouselOffset: -340 * index,
         carouselHeight: panel.clientHeight
       }
+    },
+    logStateChange (name, oldState, newState) {
+      var now = new Date()
+      var dt = Math.round((now - this.mountTime) / 100) / 10.0
+      this.log += `T${dt}: '${name}' changed from '${oldState}' to '${newState}'\n`
     }
   },
   computed: {
   },
   mounted () {
     this.coords = this.calcSVGCoords()
+    var now = new Date()
+    this.mountTime = now
+    this.log = 'T0.0: mounted\n'
   }
 }
 </script>
@@ -365,5 +409,25 @@ export default {
       color: chalk-color
       box-shadow: 0 (xs-space - xxs-space) darken(primary-color, 40%)
       margin: (s-space + xxs-space) 0 ( - xxs-space)
+
+  #log
+    display: none
+    position: fixed
+    left: 0
+    right: 0
+    bottom: 0
+    height: 15vh
+    padding: m-space
+    margin: 0
+    background-color: #333
+    // overflow: scroll
+    width: 100vw
+    border: none
+    font-size: s-font-size
+    font-family: monospace
+    color: chalk-color
+    
+  #log.show-log
+    display: block
 
 </style>
