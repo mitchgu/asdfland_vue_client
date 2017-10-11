@@ -9,9 +9,9 @@
         @click.prevent="linkType = lt"
         ref="linkTypeToggles") {{ lt }}
     svg#mustache(height="18", width="300", ref="mustacheSVG")
-      path(:d="`M${this.coords.underlineLeft} 0 L ${this.coords.underlineRight} 0`", stroke="#4a9e55", fill="transparent", stroke-width="3")
+      //- path(:d="`M${this.coords.underlineLeft} 0 L ${this.coords.underlineRight} 0`", stroke="#4a9e55", fill="transparent", stroke-width="3")
       path(d="M0 18 Q 5 13 20 13", stroke="#4a9e55", stroke-width="2" , fill="transparent")
-      path(:d="`M20 13 h ${this.coords.mustacheCenter} l 5 -5 l 5 5 h ${250 - this.coords.mustacheCenter}`", stroke="#4a9e55", stroke-width="2" , fill="transparent")
+      path(:d="`M20 13 h ${this.coords.mustacheCenter} l 5 -8 l 5 8 h ${250 - this.coords.mustacheCenter}`", stroke="#4a9e55", stroke-width="2" , fill="transparent")
       path(d="M280 13 Q 295 13 300 18", stroke="#4a9e55", stroke-width="2" , fill="transparent")
     
     #carousel-wrap(:style="{height: coords.carouselHeight + 'px'}")
@@ -20,7 +20,7 @@
           ul.fields
             li#random-length
               label Length
-              input(type="range", min=4, max=32, v-model="randomLength")
+              input(type="range", min=6, max=18, v-model="randomLength")
               span.readout(v-text="randomLength")
         .panel(ref="readable-panel")
           ul.fields
@@ -31,7 +31,7 @@
                        :value="dictkey") {{ dictvalue }}
             li#random-length
               label # Words
-              input(type="range", min=1, max=5, v-model="readableWords")
+              input(type="range", min=1, max=6, v-model="readableWords")
               span.readout(v-text="readableWords")
             li#expiry
               label Expires in
@@ -42,7 +42,7 @@
           ul.fields
             li#random-length
               label asdf.land/
-              input(type="text", size="18")
+              input(type="text", v-model="customSlug", size="18")
 
     a#options-toggle(@click="collapsed = !collapsed"
                      v-text="`${collapsed ? '> show' : '- hide'} more options`")
@@ -62,17 +62,23 @@
             input#enable(type="radio", v-model="analytics", value="enable")
             label(for="enable") enable
 
+    #preview-wrap
+      input#preview(type="text", :value="linkPreview", placeholder="link preview")
+
     button#create create shortlink
 </template>
 
 <script>
 var TWEEN = require('@tweenjs/tween.js')
+import _ from 'lodash'
+import axios from 'axios'
 
 export default {
   name: 'Creator',
   data () {
     return {
       dest: '',
+      linkPreview: '',
       collapsed: true,
       linkType: 'random',
       linkTypes: [
@@ -91,6 +97,7 @@ export default {
         bands: 'Band names'
       },
       dictionary: 'hitchiker',
+      customSlug: '',
       analytics: 'enable',
       expires: '5',
       expireOptions: {
@@ -122,7 +129,12 @@ export default {
         .to(coords, 400)
         .start()
       animate()
-    }
+      this.reserveSlug()
+    },
+    randomLength (newVal) { this.reserveSlug() },
+    readableWords (newVal) { this.reserveSlug() },
+    dictionary (newVal) { this.reserveSlug() },
+    customSlug (newVal) { this.reserveSlug() }
   },
   methods: {
     calcSVGCoords () {
@@ -140,12 +152,30 @@ export default {
         carouselOffset: -340 * index,
         carouselHeight: panel.clientHeight
       }
-    }
+    },
+    reserveSlug: _.debounce(function () {
+      var reqBody = {Type: this.linkType}
+      switch (this.linkType) {
+        case 'random':
+          reqBody.Length = Number(this.randomLength)
+          break
+        case 'readable':
+          reqBody.Length = Number(this.readableWords)
+          break
+        case 'custom':
+          reqBody.CustomSlug = this.customSlug
+          break
+      }
+      axios.post('/api/slug/reserve', reqBody).then(response => {
+        this.linkPreview = 'asdf.land/' + response.data.slug
+      })
+    }, 1000)
   },
   computed: {
   },
   mounted () {
     this.coords = this.calcSVGCoords()
+    this.reserveSlug()
   }
 }
 </script>
@@ -175,10 +205,27 @@ export default {
     text-align: center
     margin: m-space 0 s-space
     
-  #dest
+  #dest, #preview
     font-size: m-font-size
     padding: s-space
     border-radius: m-radius
+  
+  #preview-wrap
+    margin: s-space 0
+    width: 100%
+    display: flex
+    flex-direction: column
+    &::before
+      content: "link preview"
+      display: block
+      text-align: center
+      background-color: darken(primary-color, 25%)
+      border-radius: m-radius m-radius 0 0
+      padding: xs-space 0 s-space
+      margin-bottom: - m-radius
+    #preview
+      flex: 1
+      border-radius: 0 0 m-radius m-radius
     
   #options-toggle
     cursor: pointer
@@ -210,8 +257,7 @@ export default {
   #link-type-selector
     display: flex
     justify-content: space-between
-    margin-top: s-space
-    margin-bottom: -1px
+    margin-top: m-space
     a, span
       display: inline-block
       padding: xs-space 0 0
@@ -223,6 +269,7 @@ export default {
         color: primary-color
     
   .fields
+    margin: s-space*1.5 0 m-space
     li 
       margin: s-space 0
       display: flex

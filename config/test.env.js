@@ -4,5 +4,6 @@ var devEnv = require('./dev.env')
 module.exports = merge(devEnv, {
   NODE_ENV: '"testing"',
   SITE_NAME: '"asdf.land"',
-  BASE_URL: '"localhost:8080"'
+  BASE_URL: '"localhost:8080"',
+  BACKEND_URL: '"localhost:9090"'
 })
