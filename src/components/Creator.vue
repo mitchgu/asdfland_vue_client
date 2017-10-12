@@ -50,22 +50,24 @@
       ul.fields
         li#description
           label Description
-          input(type="text", size="18", placeholder="None")
+          input(type="text", v-model="description", size="18", placeholder="None")
         li#password
           label Password
-          input(type="password", size="18", placeholder="None")
+          input(type="password", v-model="password", size="18", placeholder="None")
         li#public-analytics
           label Link analytics
           #analytics-radio
-            input#disable(type="radio", v-model="analytics", value="disable")
+            input#disable(type="radio", v-model="analytics", value="false")
             label(for="disable") disable
-            input#enable(type="radio", v-model="analytics", value="enable")
+            input#enable(type="radio", v-model="analytics", value="true")
             label(for="enable") enable
 
     #preview-wrap
       input#preview(type="text", :value="linkPreview", placeholder="link preview")
 
-    button#create create shortlink
+    button#create(@click="createSlugDest") create shortlink
+
+    pre#created-pile(v-text="createdPile")
 </template>
 
 <script>
@@ -78,7 +80,7 @@ export default {
   data () {
     return {
       dest: '',
-      linkPreview: '',
+      previewSlug: '',
       collapsed: true,
       linkType: 'random',
       linkTypes: [
@@ -98,15 +100,19 @@ export default {
       },
       dictionary: 'hitchiker',
       customSlug: '',
-      analytics: 'enable',
-      expires: '5',
+      description: '',
+      password: '',
+      analytics: 'true',
+      expires: '0',
       expireOptions: {
+        '0': 'Never',
         '5': '5 minutes',
         '30': '30 minutes',
         '60': '1 hour',
         '360': '6 hours',
         '1440': '1 day'
       },
+      createdPile: '',
       coords: {
         mustacheCenter: 0,
         underlineLeft: 0,
@@ -167,11 +173,33 @@ export default {
           break
       }
       axios.post('/api/slug/reserve', reqBody).then(response => {
-        this.linkPreview = 'asdf.land/' + response.data.slug
+        this.previewSlug = response.data.slug
       })
-    }, 1000)
+    }, 1000),
+    createSlugDest () {
+      if (this.dest === '' || this.linkPreview === '') {
+        this.createdPile += 'Dest or slug empty! \n'
+        return
+      }
+      var reqBody = {
+        Slug: this.previewSlug,
+        Dest: this.dest,
+        Expire: Number(this.expires),
+        Description: this.description,
+        Password: this.password,
+        EnableAnalytics: this.analytics === 'true'
+      }
+      axios.post('/api/slugdest', reqBody).then(response => {
+        if (response.data.success) {
+          this.createdPile += 'Created link ' + this.linkPreview + ' -> ' + this.dest + '!\n'
+        } else {
+          this.createdPile += 'Failed to create link ' + this.linkPreview + 'because ' + response.data.msg + '\n'
+        }
+      })
+    }
   },
   computed: {
+    linkPreview () { return CONFIG.BACKEND_URL + '/' + this.previewSlug }
   },
   mounted () {
     this.coords = this.calcSVGCoords()
@@ -412,5 +440,15 @@ export default {
       color: chalk-color
       box-shadow: 0 (xs-space - xxs-space) darken(primary-color, 40%)
       margin: (s-space + xxs-space) 0 ( - xxs-space)
+
+  #created-pile
+    margin: m-space 0 0 
+    height: 150px
+    background-color: lighten(blackboard-color, 10%)
+    color: chalk-color
+    font-family: monospace
+    font-size: s-font-size*0.8
+    padding: s-space
+    overflow: scroll
 
 </style>
