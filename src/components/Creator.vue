@@ -197,6 +197,7 @@ export default {
       }
       axios.post('/api/slugdest', reqBody).then(response => {
         this.createdPile += 'Created link ' + this.linkPreview + ' -> ' + this.dest + '!\n'
+        this.reserveSlug()
       }).catch(error => {
         this.createdPile += 'Failed to create link ' + this.linkPreview + 'because ' + error.response.data.msg + '\n'
       })
