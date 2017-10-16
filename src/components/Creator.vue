@@ -9,7 +9,6 @@
         @click.prevent="linkType = lt"
         ref="linkTypeToggles") {{ lt }}
     svg#mustache(height="18", width="300", ref="mustacheSVG")
-      //- path(:d="`M${this.coords.underlineLeft} 0 L ${this.coords.underlineRight} 0`", stroke="#4a9e55", fill="transparent", stroke-width="3")
       path(d="M0 18 Q 5 13 20 13", stroke="#4a9e55", stroke-width="2" , fill="transparent")
       path(:d="`M20 13 h ${this.coords.mustacheCenter} l 5 -8 l 5 8 h ${250 - this.coords.mustacheCenter}`", stroke="#4a9e55", stroke-width="2" , fill="transparent")
       path(d="M280 13 Q 295 13 300 18", stroke="#4a9e55", stroke-width="2" , fill="transparent")
@@ -25,10 +24,10 @@
         .panel(ref="readable-panel")
           ul.fields
             li#random-length
-              label Dictionary
-              select(v-model="dictionary")
-                option(v-for="(dictvalue, dictkey) in dictionaries"
-                       :value="dictkey") {{ dictvalue }}
+              label Wordlist
+              select(v-model="wordlist")
+                option(v-for="(wlcaption, wlname) in wordlists"
+                       :value="wlname") {{ wlcaption }}
             li#random-length
               label # Words
               input(type="range", min=1, max=6, v-model="readableWords")
@@ -41,7 +40,7 @@
         .panel(ref="custom-panel")
           ul.fields
             li#random-length
-              label asdf.land/
+              label {{ this.URLBASE }}
               input(type="text", v-model="customSlug", size="18")
 
     a#options-toggle(@click="collapsed = !collapsed"
@@ -89,16 +88,14 @@ export default {
         'custom'
       ],
       randomLength: 8,
-      readableWords: 2,
-      dictionaries: {
-        hitchiker: 'Hitchiker\'s Guide',
-        astronomy: 'Astronomy',
-        elements: 'Elements',
-        animals: 'Animals',
-        countries: 'Countries',
-        bands: 'Band names'
+      readableWords: 1,
+      wordlists: {
+        eff_short_1: 'EFF (short)',
+        eff_short_2: 'EFF (medium)',
+        eff_large: 'EFF (large)',
+        pgp: 'PGP word list'
       },
-      dictionary: 'hitchiker',
+      wordlist: 'eff_large',
       customSlug: '',
       description: '',
       password: '',
@@ -115,8 +112,6 @@ export default {
       createdPile: '',
       coords: {
         mustacheCenter: 0,
-        underlineLeft: 0,
-        underlineRight: 0,
         carouselOffset: 0,
         carouselHeight: 0
       }
@@ -139,7 +134,7 @@ export default {
     },
     randomLength (newVal) { this.reserveSlug() },
     readableWords (newVal) { this.reserveSlug() },
-    dictionary (newVal) { this.reserveSlug() },
+    wordlist (newVal) { this.reserveSlug() },
     customSlug (newVal) { this.reserveSlug() }
   },
   methods: {
@@ -153,8 +148,6 @@ export default {
       var toggleCenter = (toggleBounds.left + toggleBounds.right) / 2.0
       return {
         mustacheCenter: toggleCenter - svgBounds.left - 25,
-        underlineLeft: toggleBounds.left - svgBounds.left,
-        underlineRight: toggleBounds.right - svgBounds.left,
         carouselOffset: -340 * index,
         carouselHeight: panel.clientHeight
       }
@@ -167,6 +160,7 @@ export default {
           break
         case 'readable':
           reqBody.Length = Number(this.readableWords)
+          reqBody.Wordlist = this.wordlist
           break
         case 'custom':
           reqBody.CustomSlug = this.customSlug
@@ -174,6 +168,8 @@ export default {
       }
       axios.post('/api/slug/reserve', reqBody).then(response => {
         this.previewSlug = response.data.slug
+      }).catch(error => {
+        this.createdPile += 'Failed to reserve link because ' + error.response.data.msg + '\n'
       })
     }, 1000),
     createSlugDest () {
@@ -190,20 +186,21 @@ export default {
         EnableAnalytics: this.analytics === 'true'
       }
       axios.post('/api/slugdest', reqBody).then(response => {
-        if (response.data.success) {
-          this.createdPile += 'Created link ' + this.linkPreview + ' -> ' + this.dest + '!\n'
-        } else {
-          this.createdPile += 'Failed to create link ' + this.linkPreview + 'because ' + response.data.msg + '\n'
-        }
+        this.createdPile += 'Created link ' + this.linkPreview + ' -> ' + this.dest + '!\n'
+      }).catch(error => {
+        this.createdPile += 'Failed to create link ' + this.linkPreview + 'because ' + error.response.data.msg + '\n'
       })
     }
   },
   computed: {
-    linkPreview () { return CONFIG.BACKEND_URL + '/' + this.previewSlug }
+    linkPreview () { return this.URLBASE + this.previewSlug }
   },
   mounted () {
     this.coords = this.calcSVGCoords()
     this.reserveSlug()
+  },
+  created () {
+    this.URLBASE = CONFIG.BACKEND_URL.replace(/https?:\/\//, '') + '/'
   }
 }
 </script>
