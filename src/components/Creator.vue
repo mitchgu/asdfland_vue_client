@@ -62,7 +62,9 @@
             label(for="enable") enable
 
     #preview-wrap
+      label link preview
       input#preview(type="text", :value="linkPreview", placeholder="link preview")
+      i.material-icons(@click="reserveSlug" v-if="linkType != 'custom'") autorenew
 
     button#create(@click="createSlugDest") create shortlink
 
@@ -88,14 +90,14 @@ export default {
         'custom'
       ],
       randomLength: 8,
-      readableWords: 1,
+      readableWords: 2,
       wordlists: {
         eff_short_1: 'EFF (short)',
         eff_short_2: 'EFF (medium)',
         eff_large: 'EFF (large)',
         pgp: 'PGP word list'
       },
-      wordlist: 'eff_large',
+      wordlist: 'eff_short_1',
       customSlug: '',
       description: '',
       password: '',
@@ -132,10 +134,10 @@ export default {
       animate()
       this.reserveSlug()
     },
-    randomLength (newVal) { this.reserveSlug() },
-    readableWords (newVal) { this.reserveSlug() },
-    wordlist (newVal) { this.reserveSlug() },
-    customSlug (newVal) { this.reserveSlug() }
+    randomLength (newVal) { _.debounce(this.reserveSlug(), 1000) },
+    readableWords (newVal) { _.debounce(this.reserveSlug(), 1000) },
+    wordlist (newVal) { _.debounce(this.reserveSlug(), 1000) },
+    customSlug (newVal) { _.debounce(this.reserveSlug(), 1000) }
   },
   methods: {
     calcSVGCoords () {
@@ -152,7 +154,7 @@ export default {
         carouselHeight: panel.clientHeight
       }
     },
-    reserveSlug: _.debounce(function () {
+    reserveSlug () {
       var reqBody = {Type: this.linkType}
       switch (this.linkType) {
         case 'random':
@@ -171,7 +173,7 @@ export default {
       }).catch(error => {
         this.createdPile += 'Failed to reserve link because ' + error.response.data.msg + '\n'
       })
-    }, 1000),
+    },
     createSlugDest () {
       if (this.dest === '' || this.linkPreview === '') {
         this.createdPile += 'Dest or slug empty! \n'
@@ -240,7 +242,8 @@ export default {
     width: 100%
     display: flex
     flex-direction: column
-    &::before
+    position: relative
+    label
       content: "link preview"
       display: block
       text-align: center
@@ -251,6 +254,20 @@ export default {
     #preview
       flex: 1
       border-radius: 0 0 m-radius m-radius
+      font-size: s-font-size
+    i
+      display: inline-block
+      position: absolute
+      right: xs-space
+      bottom: xs-space*1.5
+      cursor: pointer
+      z-index: 100
+      color: chalk-color
+      transition: color 0.2s
+      &:hover
+        color: darken(chalk-color, 20%)
+      &:active
+        color: primary-color
     
   #options-toggle
     cursor: pointer
