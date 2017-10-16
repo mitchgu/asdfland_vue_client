@@ -61,7 +61,7 @@
             input#enable(type="radio", v-model="analytics", value="true")
             label(for="enable") enable
 
-    #preview-wrap
+    #preview-wrap(:class="[reserveState]")
       label link preview
       input#preview(type="text", :value="linkPreview", placeholder="link preview")
       i.material-icons(@click="reserveSlug" v-if="linkType != 'custom'") autorenew
@@ -103,6 +103,7 @@ export default {
       password: '',
       analytics: 'true',
       expires: '0',
+      reserveState: 'DEBOUNCING',
       expireOptions: {
         '0': 'Never',
         '5': '5 minutes',
@@ -127,17 +128,20 @@ export default {
           requestAnimationFrame(animate)
         }
       }
-      new TWEEN.Tween(this.$data.coords)
+      new TWEEN.Tween(this.coords)
         .easing(TWEEN.Easing.Quartic.InOut)
         .to(coords, 400)
         .start()
       animate()
+      if (newType === 'custom' && this.customSlug === '') {
+        this.customSlug = this.previewSlug
+      }
       this.reserveSlug()
     },
-    randomLength (newVal) { _.debounce(this.reserveSlug(), 1000) },
-    readableWords (newVal) { _.debounce(this.reserveSlug(), 1000) },
-    wordlist (newVal) { _.debounce(this.reserveSlug(), 1000) },
-    customSlug (newVal) { _.debounce(this.reserveSlug(), 1000) }
+    randomLength (newVal) { this.reserveState = 'DEBOUNCING'; this.reserveSlugDebounced() },
+    readableWords (newVal) { this.reserveState = 'DEBOUNCING'; this.reserveSlugDebounced() },
+    wordlist (newVal) { this.reserveSlug() },
+    customSlug (newVal) { this.reserveState = 'DEBOUNCING'; this.reserveSlugDebounced() }
   },
   methods: {
     calcSVGCoords () {
@@ -154,7 +158,9 @@ export default {
         carouselHeight: panel.clientHeight
       }
     },
+    reserveSlugDebounced: _.debounce(function () { this.reserveSlug() }, 250),
     reserveSlug () {
+      this.reserveState = 'RESERVING'
       var reqBody = {Type: this.linkType}
       switch (this.linkType) {
         case 'random':
@@ -170,8 +176,10 @@ export default {
       }
       axios.post('/api/slug/reserve', reqBody).then(response => {
         this.previewSlug = response.data.slug
+        this.reserveState = 'RESERVED'
       }).catch(error => {
         this.createdPile += 'Failed to reserve link because ' + error.response.data.msg + '\n'
+        this.reserveState = 'RESERVED'
       })
     },
     createSlugDest () {
@@ -251,10 +259,12 @@ export default {
       border-radius: m-radius m-radius 0 0
       padding: xs-space 0 s-space
       margin-bottom: - m-radius
+      transition: background-color .3s
     #preview
       flex: 1
       border-radius: 0 0 m-radius m-radius
       font-size: s-font-size
+      transition: border .2s
     i
       display: inline-block
       position: absolute
@@ -268,6 +278,16 @@ export default {
         color: darken(chalk-color, 20%)
       &:active
         color: primary-color
+    &.DEBOUNCING
+      label
+        background-color: desaturate(darken(primary-color, 25%), 100%)
+      #preview
+        border-bottom: 2px solid desaturate(darken(primary-color, 25%), 100%)
+    &.RESERVING
+      label
+        background-color: desaturate(darken(primary-color, 25%), 50%)
+      #preview
+        border-bottom: 2px solid desaturate(darken(primary-color, 25%), 50%)
     
   #options-toggle
     cursor: pointer
