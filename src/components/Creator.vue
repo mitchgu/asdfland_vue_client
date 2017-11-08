@@ -89,8 +89,8 @@ export default {
         'readable',
         'custom'
       ],
-      randomLength: 8,
-      readableWords: 2,
+      randomLength: 6,
+      readableWords: 1,
       wordlists: {
         eff_short_1: 'EFF (short)',
         eff_short_2: 'EFF (medium)',
