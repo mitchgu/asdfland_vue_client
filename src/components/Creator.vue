@@ -178,8 +178,9 @@ export default {
         this.previewSlug = response.data.slug
         this.reserveState = 'RESERVED'
       }).catch(error => {
+        if (this.linkType === 'custom') this.previewSlug = this.customSlug
         this.createdPile += 'Failed to reserve link because ' + error.response.data.msg + '\n'
-        this.reserveState = 'RESERVED'
+        this.reserveState = 'UNAVAILABLE'
       })
     },
     createSlugDest () {
@@ -197,7 +198,9 @@ export default {
       }
       axios.post('/api/slugdest', reqBody).then(response => {
         this.createdPile += 'Created link ' + this.linkPreview + ' -> ' + this.dest + '!\n'
-        this.reserveSlug()
+        this.dest = ''
+        if (this.linkType !== 'custom') this.reserveSlug()
+        else this.reserveState = 'UNAVAILABLE'
       }).catch(error => {
         this.createdPile += 'Failed to create link ' + this.linkPreview + 'because ' + error.response.data.msg + '\n'
       })
@@ -289,6 +292,11 @@ export default {
         background-color: desaturate(darken(primary-color, 25%), 50%)
       #preview
         border-bottom: 2px solid desaturate(darken(primary-color, 25%), 50%)
+    &.UNAVAILABLE
+      label
+        background-color: darken(red, 25%)
+      #preview
+        border-bottom: 2px solid darken(red, 25%)
     
   #options-toggle
     cursor: pointer
