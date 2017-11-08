@@ -23,6 +23,11 @@ ul
   margin: 0
   padding: 0
   
+a
+  text-decoration: none
+  &:hover
+    text-decoration: underline
+  
 input, select, option
   &:focus
     outline: none

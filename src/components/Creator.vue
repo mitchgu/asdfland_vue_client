@@ -67,8 +67,6 @@
       i.material-icons(@click="reserveSlug" v-if="linkType != 'custom'") autorenew
 
     button#create(@click="createSlugDest") create shortlink
-
-    pre#created-pile(v-text="createdPile")
 </template>
 
 <script>
@@ -200,7 +198,7 @@ export default {
         this.createdPile += 'Created link ' + this.linkPreview + ' -> ' + this.dest + '!\n'
         this.dest = ''
         if (this.linkType !== 'custom') this.reserveSlug()
-        else this.reserveState = 'UNAVAILABLE'
+        this.$emit('new')
       }).catch(error => {
         this.createdPile += 'Failed to create link ' + this.linkPreview + 'because ' + error.response.data.msg + '\n'
       })

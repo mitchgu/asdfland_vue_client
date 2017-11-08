@@ -1,7 +1,5 @@
 <template lang="pug">
-  #dash(:class="{collapsed: !isRegistered}")
-    label#toggle-label(for="toggle", v-text="collapsed? 'Expand' : 'Collapse'")
-    input#toggle(v-model="collapsed", type="checkbox", style="display: none")
+  #dash(:class="{collapsed: collapsed}")
     #creator-wrap
       header#dash-head
         #brand {{ siteName }}
@@ -18,17 +16,18 @@
                 a(href="#" @click.prevent="logout") Logout
             form#hi(v-if="showLoginOrSignup")
               input#username(type="text", v-model="LOSUsername", placeholder="username")
-              input#password(type="text", v-model="LOSPassword", placeholder="password")
+              input#password(type="password", v-model="LOSPassword", placeholder="password")
               button#los-btn(@click.prevent="submitLOS") {{ loginOrSignup }}
               a(href="#")
                 i.material-icons(@click="showLoginOrSignup=false") close
-      creator
-    #listing-wrap
-      #listing
+      creator(ref="Creator", @new="refreshDestIndex")
+    #destindex-wrap
+      DestIndex#destindex(ref="DestIndex", @refreshed="numDests = Number($event)")
 </template>
 
 <script>
 import Creator from './Creator.vue'
+import DestIndex from './DestIndex.vue'
 import CONST from '../constants.js'
 import axios from 'axios'
 
@@ -36,7 +35,7 @@ export default {
   name: 'Dash',
   data () {
     return {
-      collapsed: true,
+      numDests: 0,
       username: 'guest',
       isRegistered: false,
       showLoginOrSignup: false,
@@ -64,6 +63,8 @@ export default {
             this.showLoginOrSignup = false
             this.LOSUsername = ''
             this.LOSPassword = ''
+            this.$refs.Creator.reserveSlug()
+            this.refreshDestIndex()
           } else console.log('login fail')
         }).catch(error => {
           console.log('login fail ' + error.response.data.msg + '\n')
@@ -75,6 +76,8 @@ export default {
           this.showLoginOrSignup = false
           this.LOSUsername = ''
           this.LOSPassword = ''
+          this.$refs.Creator.reserveSlug()
+          this.refreshDestIndex()
         }).catch(error => {
           console.log('login fail ' + error.response.data.msg + '\n')
         })
@@ -84,9 +87,14 @@ export default {
       axios.get('/api/user/logout').then(response => {
         this.username = 'guest'
         this.isRegistered = false
+        this.$refs.Creator.reserveSlug()
+        this.refreshDestIndex()
       }).catch(error => {
         console.log('logout fail ' + error.response.data.msg + '\n')
       })
+    },
+    refreshDestIndex () {
+      this.$refs.DestIndex.refreshList()
     }
   },
   created () {
@@ -101,8 +109,14 @@ export default {
       console.log('session info fail ' + error.response.data.msg + '\n')
     })
   },
+  computed: {
+    collapsed () {
+      return !(this.isRegistered || (this.numDests > 0))
+    }
+  },
   components: {
-    Creator
+    Creator,
+    DestIndex
   }
 }
 </script>
@@ -115,7 +129,7 @@ export default {
   margin: 0 auto
   max-width: dash-max-width
 
-#creator-wrap, #listing-wrap
+#creator-wrap, #destindex-wrap
   transition: flex 1s
 
 #creator-wrap
@@ -140,26 +154,18 @@ export default {
     a:hover
       text-decoration: underline
     
-#listing-wrap
+#destindex-wrap
   flex: 1
-  #listing
-    width: 100%
-    height: 100vh
-    background-color: red
+  padding: 0 m-space
+  overflow: hidden
+  opacity: 1
+  transition: opacity 1s
 
 #dash.collapsed
   #creator-wrap
     flex: 1
-  #listing-wrap
+  #destindex-wrap
+    opacity: 0
     flex: 0
-  
-#toggle-label
-  display: inline-block
-  position: fixed
-  padding: s-space
-  border-radius: m-radius
-  bottom: s-space
-  left: s-space
-  background-color: white
 
 </style>
