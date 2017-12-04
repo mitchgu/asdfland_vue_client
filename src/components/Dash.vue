@@ -5,19 +5,23 @@
         #brand {{ siteName }}
         #subtitle A revolutionary weight loss program for obese links
         #user
-            p 
-              span Welcome, {{ username }}. 
-              span(v-if="!isRegistered")
-                a(href="#" @click.prevent="showLOS('login')") Log in
-                |  or 
-                a(href="#" @click.prevent="showLOS('signup')") sign up
-                |  to manage links 
-              span(v-if="isRegistered")
-                a(href="#" @click.prevent="logout") Logout
-            form#hi(v-if="showLoginOrSignup")
+          p 
+            span Welcome, {{ username }}. 
+            span(v-if="!isRegistered")
+              a(href="#" @click.prevent="showLOS('login')") Log in
+              |  or 
+              a(href="#" @click.prevent="showLOS('signup')") sign up
+              |  to manage links 
+            span(v-if="isRegistered")
+              a(href="#" @click.prevent="logout") Logout
+          form#los(v-if="showLoginOrSignup")
+            .wide
               input#username(type="text", v-model="LOSUsername", placeholder="username")
+            .wide
               input#password(type="password", v-model="LOSPassword", placeholder="password")
+            .slim
               button#los-btn(@click.prevent="submitLOS") {{ loginOrSignup }}
+            .slim
               a(href="#")
                 i.material-icons(@click="showLoginOrSignup=false") close
       creator(ref="Creator", @new="refreshDestIndex")
@@ -145,6 +149,29 @@ export default {
   #subtitle
     color: darken(chalk-color, 5%)
     font-size: s-font-size
+  #los
+    margin: 0 auto
+    max-width: creator-width
+    display: flex
+    input
+      background-color: transparent
+      border: none
+      border-bottom: 1px solid faded-chalk-color
+      width: 85%
+      color: chalk-color
+      padding: xs-space
+      &::placeholder
+        color: faded-chalk-color
+    button
+      background-color: darken(primary-color, 70%)
+      border: none
+      border-radius: 0
+      padding: xs-space
+      color: chalk-color
+    .wide
+      flex: 3
+    .slim
+      flex: 1
   #user
     margin: m-space 0
     font-size: s-font-size
