@@ -4,8 +4,9 @@
       .cell.slug Slug(s)
       .cell.dest Destination
       .cell.desc Description
-      .cell.created-at Creation Date
+      .cell.created-at Created
       .cell.clicks Clicks
+      .cell.ops Modify
     template(v-for="dest in destList")
       DestListing(:destInfo="dest")
 </template>
@@ -61,12 +62,23 @@ export default {
     font-size: s-font-size
     display: flex
     flex-direction: horizontal
+    padding: 0 s-space
     .cell
-      flex:1
+      flex: 3
       text-align: center
-      padding: 1.5*s-space 0
-    border-bottom: 1px solid lighten(blackboard-color, 25%)
+      padding: s-space xs-space
+    .slug
+      flex: 2
+    .created-at
+      flex: 2
+    .clicks
+      flex: 1
+    .ops
+      flex: 1
+    // border-bottom: 1px solid lighten(blackboard-color, 25%)
+    &:nth-child(even)
+      background-color: lighten(blackboard-color, 5%)
     &:hover
-      background-color: lighten(blackboard-color, 10%)
+      background-color: darken(primary-color, 30%)
 
 </style>

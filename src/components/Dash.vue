@@ -121,7 +121,7 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
+<style lang="stylus">
 @require '../assets/settings.styl'
 
 #dash
@@ -167,5 +167,19 @@ export default {
   #destindex-wrap
     opacity: 0
     flex: 0
+    
+@media (max-width: 1000px)
+  #dash
+    flex-direction: column
+    
+@media (max-width: 650px)
+  #destindex
+    .created-at, .clicks
+      display: none
+    
+@media (max-width: 450px)
+  #destindex
+    .desc
+      display: none
 
 </style>
