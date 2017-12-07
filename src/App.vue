@@ -23,10 +23,12 @@ ul
   margin: 0
   padding: 0
   
-a
+a, a:visited
   text-decoration: none
-  &:hover
-    text-decoration: underline
+  color: darken(chalk-color, 25%)
+a:hover
+  text-decoration: none
+  color: chalk-color
   
 input, select, option
   &:focus

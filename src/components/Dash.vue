@@ -3,7 +3,7 @@
     #creator-wrap
       header#dash-head
         #brand {{ siteName }}
-        #subtitle A revolutionary weight loss program for obese links
+        #subtitle The only URL shortener you'll ever need.
         #user
           p 
             span Welcome, {{ username }}. 
@@ -25,6 +25,12 @@
               a(href="#")
                 i.material-icons(@click="showLoginOrSignup=false") close
       creator(ref="Creator", @new="refreshDestIndex")
+      about(v-if="showAbout")
+      .about-close(v-if="showAbout")
+        a(href="#" @click.prevent="showAbout = false")
+          i.material-icons close
+      p.about-link
+        a(href="#" @click.prevent="showAbout = true") what is this?
     #destindex-wrap
       DestIndex#destindex(ref="DestIndex", @refreshed="numDests = Number($event)")
 </template>
@@ -32,6 +38,7 @@
 <script>
 import Creator from './Creator.vue'
 import DestIndex from './DestIndex.vue'
+import About from './About.vue'
 import CONST from '../constants.js'
 import axios from 'axios'
 
@@ -46,7 +53,8 @@ export default {
       loginOrSignup: 'login',
       siteName: CONST.siteName,
       LOSUsername: '',
-      LOSPassword: ''
+      LOSPassword: '',
+      showAbout: false
     }
   },
   methods: {
@@ -120,7 +128,8 @@ export default {
   },
   components: {
     Creator,
-    DestIndex
+    DestIndex,
+    About
   }
 }
 </script>
@@ -194,6 +203,20 @@ export default {
   #destindex-wrap
     opacity: 0
     flex: 0
+    
+.about-link
+  margin-top: m-space
+  text-align: center
+  
+.about-close
+  z-index: 12
+  position: fixed
+  top: 0
+  right: 0
+  padding-top: m-space
+  padding-right: m-space
+  i
+    font-size: brand-font-size
     
 @media (max-width: 1000px)
   #dash

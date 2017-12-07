@@ -51,9 +51,9 @@ export default {
 #destindex
   background-color: blackboard-color
   color: chalk-color
-  font-vamily: base-font
+  font-family: base-font
   margin: l-space 0
-  box-shadow: 0px 0px 5px #0A2309
+  box-shadow: 0px 0px l-radius darken(blackboard-color, 60%)
   border-radius: m-radius
   #header-row
     font-size: m-font-size
@@ -79,6 +79,6 @@ export default {
     &:nth-child(even)
       background-color: lighten(blackboard-color, 5%)
     &:hover
-      background-color: darken(primary-color, 30%)
+      background-color: darken(desaturate(primary-color, 45%), 45%)
 
 </style>

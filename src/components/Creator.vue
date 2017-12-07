@@ -229,7 +229,7 @@ export default {
   padding: 1.5*m-space
   display: flex
   flex-direction: column
-  box-shadow: 0px 0px 5px #0A2309
+  box-shadow: 0px 0px l-radius darken(blackboard-color, 60%)
   border-radius: m-radius
   background-color: blackboard-color
   color: chalk-color
@@ -273,7 +273,7 @@ export default {
       right: xs-space
       bottom: xs-space*1.5
       cursor: pointer
-      z-index: 100
+      z-index: 1
       color: chalk-color
       transition: color 0.2s
       &:hover
