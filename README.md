@@ -1,69 +1,38 @@
-# asdf.land URL Shortener - Vue.JS Frontend
+# asdfland URL Shortener - Vue.JS Frontend
 
-## The only URL shortener you'll ever need. Here's why:
+## The only URL shortener you'll ever need.
 
-### **3 link types** for 3 use cases
-
-#### **Random** (like bit.ly)
-  * Generates a **short, completely random** link (high entropy) (Ex: `asdf.land/wHRbxt`)
-  * Good for **maximal shortness**, or making a long link that is astronomically **hard to guess** (effectively private)
-  * Best for **sending electronically** in messages, email, documents to reduce clutter
-#### **Readable** (like shoutkey.com)
-  * Generates a **readable** link composed of common words (Ex: `asdf.land/ankle`)
-  * Great for **sharing verbally** for an audience or nearby collaborators
-#### **Custom** (like bit.ly, tinyurl.com)
-  * choose a **custom** link (Ex: `asdf.land/XYZ.party.signup`)
-  * Great for **memorable links** to put in publicity or to reinforce branding
-  * Also good for creating a **personal library** of bookmarks that are named memorably (`asdf.land/my_resume`, `asdf.land/catgifs`)
-
-### Endlessly parametrizable links
-Change everything about your link to your liking
-* length
-* word dictionary
-* expiration
-* custom slug
-* password protection
-* analytics
-
-### **Live preview** links before creating them
-The link you see is the link you'll get. Tweak it until you like how it looks.
-
-### **Manage links** in the dashboard (no account required)
+* **3 link types** for 3 use cases
+  * **Random** (like bit.ly)
+    * Generates a **short, completely random** link (high entropy) (Ex: `asdf.land/wHRbxt`)
+    * Good for **maximal shortness**, or making a long link that is astronomically **hard to guess** (effectively private)
+    * Best for **sending electronically** in messages, email, documents to reduce clutter
+  * **Readable** (like shoutkey.com)
+    * Generates a **readable** link composed of common words (Ex: `asdf.land/ankle`)
+    * Good for **sharing verbally** for an audience or nearby collaborators
+  * **Custom** (like bit.ly, tinyurl.com)
+    * choose a **custom** link (Ex: `asdf.land/XYZ.party.signup`)
+    * Good for **memorable links** to put in publicity or to reinforce branding
+    * Also good for creating a **personal library** of bookmarks that are named memorably (`asdf.land/my_resume`, `asdf.land/catgifs`)
+* **Endlessly parametrizable** links. Change everything about your link to your liking: length, word dictionary, expiration, custom slug, password protection, analytics
+* **Live preview** links before creating them
+* **Manage links** in the dashboard (no account required)
   * **Edit** any existing link's slug or destination
   * **Associate** multiple shortlinks with one destination
   * **Annotate** links with descriptions
   * **Track** link visits over time
-### **Open source** and **easily self-hostable** on a custom domain
-  * Go backend: [https://github.com/mitchgu/asdfland](https://github.com/mitchgu/asdfland)
-  * Vue.js frontend: [https://github.com/mitchg/asdfland_vue_client](https://github.com/mitchgu/asdfland_vue_client)
-### **Ludicrously fast**: powered by **Go** and **Redis**
+* **Open source** and **easily self-hostable** on a custom domain
+* **Ludicrously fast**: powered by **Go** and **Redis**
 
-## Deploying
-asdf.land comes in two parts: the [backend](https://github.com/mitchgu/asdfland) and the main Vue.JS frontend (this repository). Other frontends that adhere to the same API can also be used.
+## Getting Started
+If you just want to get asdfland running, refer to the README for main repository (the go backend) at [mitchgu/asdfland](https://github.com/mitchgu/asdfland). This repository just hosts the sources for the default Vue.js frontend, which becomes embedded in the main repository. If you're interested in customizing the frontend by itself or in tandem with the backend, read on.
 
-### Build Environment
-Building asdf.land requires **Go**, **Redis**, and **node.js/npm**. Each can be installed fairly easily by following their official instructions
+## Building the frontend
 
-### Deploy
 
-1. Find a suitable place to clone the files (Ex: `/srv/asdf`)
-1. Clone both repositories:
+1. `git clone https://github.com/mitchgu/asdfland_vue_client.git && cd asdfland_vue_client`
+2. `npm install`
+3. `npm run dev` to run a liveupdating devserver at `localhost:8080` by default
+4. `npm run build` to build production files to the `dist` folder
 
-		git clone https://github.com/mitchgu/asdfland
-		git clone https://github.com/mitchgu/asdfland_vue_client
-		
-1. Build the frontend:
-	* `cd asdfland_vue_client`
-	* `npm install`
-	* `npm run build`
-1. Configure the backend:
-	* Copy `asdfland/config_sample.yaml` to `asdfland/config.yaml` and open it in an editor of your choice
-	* Configure the backend:
-		* `server_addr`: The port to serve asdf.land at (Ex: `localhost:9090`)
-		*`db_kind`: Only supports `redis` currently
-		* `redis_addr`: Address and port of redis (Ex: `localhost:6379`)
-		* `redis_dbnum`: Database number to use for redis (Ex: `7`)
-		* `redis_pass`: Redis password, empty if no password
-		* `frontend_dir`: The path of the frontend directory (Ex: `/srv/asdf/asdfand_vue_client/dist`)
-	* Run the backend: `./asdfland &`
-	* Recommended: Use Nginx or Apache virtual hosts to proxy traffic from the desired domain to the go server. 
+The frontend won't work if it's not pointed to a running backend. By default, it looks for a backend running at `localhost:9090`. You can change this by editing `config/index.js`. The `proxyTable` section of this file proxies all requests starting with `/api` to the address of the backend.
