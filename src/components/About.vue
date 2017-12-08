@@ -1,24 +1,24 @@
 <template lang="pug">
 .about
-  .content
+  .about-content
     .brand {{ siteName }}
 
     :markdown-it
-      ## The only URL shortener you'll ever need. Here's why:
+      ## The only URL shortener you'll ever need.
       
       ## **3 link types** for 3 use cases
       
       ### **Random** (like bit.ly)
-        * Generates a **short, completely random** link (high entropy) (Ex: `asdf.land/wHRbxt`)
+        * Generates a **short, completely random** link (high entropy) (Ex: `{{ baseUrl }}/wHRbxt`)
         * Good for **maximal shortness**, or making a long link that is astronomically **hard to guess** (effectively private)
         * Best for **sending electronically** in messages, email, documents to reduce clutter
       ### **Readable** (like shoutkey.com)
-        * Generates a **readable** link composed of common words (Ex: `asdf.land/ankle`)
+        * Generates a **readable** link composed of common words (Ex: `{{ baseUrl }}/ankle`)
         * Great for **sharing verbally** for an audience or nearby collaborators
       ### **Custom** (like bit.ly, tinyurl.com)
-        * choose a **custom** link (Ex: `asdf.land/XYZ.party.signup`)
+        * choose a **custom** link (Ex: `{{ baseUrl }}/XYZ.party.signup`)
         * Great for **memorable links** to put in publicity or to reinforce branding
-        * Also good for creating a **personal library** of bookmarks that are named memorably (`asdf.land/my_resume`, `asdf.land/catgifs`)
+        * Also good for creating a **personal library** of bookmarks that are named memorably (`{{ baseUrl }}/my_resume`, `{{ baseUrl }}/catgifs`)
 
       ## Endlessly parametrizable links
       Change everything about your link to your liking
@@ -45,13 +45,16 @@
 </template>
 
 <script>
-import CONST from '../constants.js'
 export default {
   name: 'About',
+  props: ['siteName'],
   data () {
     return {
-      siteName: CONST.siteName
+      baseUrl: window.location.href
     }
+  },
+  created () {
+
   }
 }
 </script>
@@ -71,11 +74,11 @@ export default {
     font-family: chalk-font
     font-size: brand-font-size
     text-align: center
-  .content
+  .about-content
     max-width: 600px
     margin: 0 auto
     padding: l-space m-space
-    color: chalk-color
+    color: darken(chalk-color, 10%)
   
   ul
     list-style-type: initial

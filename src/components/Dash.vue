@@ -3,7 +3,7 @@
     #creator-wrap
       header#dash-head
         #brand {{ siteName }}
-        #subtitle The only URL shortener you'll ever need.
+        #tagline {{ siteTagline }}
         #user
           p 
             span Welcome, {{ username }}. 
@@ -25,7 +25,7 @@
               a(href="#")
                 i.material-icons(@click="showLoginOrSignup=false") close
       creator(ref="Creator", @new="refreshDestIndex")
-      about(v-if="showAbout")
+      about(:site-name="siteName", v-if="showAbout")
       .about-close(v-if="showAbout")
         a(href="#" @click.prevent="showAbout = false")
           i.material-icons close
@@ -36,22 +36,22 @@
 </template>
 
 <script>
+import About from './About.vue'
+import axios from 'axios'
 import Creator from './Creator.vue'
 import DestIndex from './DestIndex.vue'
-import About from './About.vue'
-import CONST from '../constants.js'
-import axios from 'axios'
 
 export default {
   name: 'Dash',
   data () {
     return {
       numDests: 0,
+      siteName: '',
+      siteTagline: '',
       username: 'guest',
       isRegistered: false,
       showLoginOrSignup: false,
       loginOrSignup: 'login',
-      siteName: CONST.siteName,
       LOSUsername: '',
       LOSPassword: '',
       showAbout: false
@@ -110,13 +110,13 @@ export default {
     }
   },
   created () {
-    axios.get('/api/session').then(response => {
-      if (response.data.IsRegistered === 'true') {
-        this.username = response.data.Username
-      } else {
-        this.username = 'guest'
-      }
-      this.isRegistered = response.data.IsRegistered === 'true'
+    axios.get('/api/checkin').then(response => {
+      this.siteName = response.data.site_name
+      this.siteTagline = response.data.site_tagline
+      this.username = (response.data.is_registered === 'true')
+        ? response.data.username : 'guest'
+      this.isRegistered = response.data.is_registered === 'true'
+      bus.$emit('dash-checkin')
     }).catch(error => {
       console.log('session info fail ' + error.response.data.msg + '\n')
     })
@@ -155,7 +155,7 @@ export default {
     font-family: chalk-font
     font-size: brand-font-size
     margin-top: l-space
-  #subtitle
+  #tagline
     color: darken(chalk-color, 5%)
     font-size: s-font-size
   #los

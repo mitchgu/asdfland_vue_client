@@ -212,7 +212,7 @@ export default {
     this.reserveSlug()
   },
   created () {
-    this.URLBASE = CONFIG.BACKEND_URL.replace(/https?:\/\//, '') + '/'
+    this.URLBASE = window.location.href.replace(/https?:\/\//, '')
   }
 }
 </script>
