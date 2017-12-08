@@ -1,7 +1,7 @@
 {
-  "name": "asdfland_client",
-  "version": "1.0.0",
-  "description": "Link shortener",
+  "name": "asdfland_vuejs_client",
+  "version": "0.0.1",
+  "description": "Vue.js frontend for asdfland - The only URL shortener you'll ever need.",
   "author": "Mitchell Gu <me@mitchgu.com>",
   "private": true,
   "scripts": {
