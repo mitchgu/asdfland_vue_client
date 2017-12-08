@@ -111,7 +111,6 @@ export default {
         '360': '6 hours',
         '1440': '1 day'
       },
-      createdPile: '',
       coords: {
         mustacheCenter: 0,
         carouselOffset: 0,
@@ -177,14 +176,14 @@ export default {
         this.previewSlug = response.data.slug
         this.reserveState = 'RESERVED'
       }).catch(error => {
+        console.log(error)
         if (this.linkType === 'custom') this.previewSlug = this.customSlug
-        this.createdPile += 'Failed to reserve link because ' + error.response.data.msg + '\n'
         this.reserveState = 'UNAVAILABLE'
       })
     },
     createSlugDest () {
       if (this.dest === '' || this.linkPreview === '') {
-        this.createdPile += 'Dest or slug empty! \n'
+        // display a warning message
         return
       }
       var reqBody = {
@@ -196,12 +195,10 @@ export default {
         EnableAnalytics: this.analytics === 'true'
       }
       axios.post('/api/slugdest', reqBody).then(response => {
-        this.createdPile += 'Created link ' + this.linkPreview + ' -> ' + this.dest + '!\n'
         this.dest = ''
         if (this.linkType !== 'custom') this.reserveSlug()
         bus.$emit('creator-created')
       }).catch(error => {
-        this.createdPile += 'Failed to create link ' + this.linkPreview + 'because ' + error.response.data.msg + '\n'
         console.log(error)
         // display an error message
       })
