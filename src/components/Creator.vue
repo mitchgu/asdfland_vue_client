@@ -73,6 +73,7 @@
 var TWEEN = require('@tweenjs/tween.js')
 import _ from 'lodash'
 import axios from 'axios'
+import bus from '../bus.js'
 
 export default {
   name: 'Creator',
@@ -198,9 +199,11 @@ export default {
         this.createdPile += 'Created link ' + this.linkPreview + ' -> ' + this.dest + '!\n'
         this.dest = ''
         if (this.linkType !== 'custom') this.reserveSlug()
-        this.$emit('new')
+        bus.$emit('creator-created')
       }).catch(error => {
         this.createdPile += 'Failed to create link ' + this.linkPreview + 'because ' + error.response.data.msg + '\n'
+        console.log(error)
+        // display an error message
       })
     }
   },
@@ -209,10 +212,10 @@ export default {
   },
   mounted () {
     this.coords = this.calcSVGCoords()
-    this.reserveSlug()
   },
   created () {
     this.URLBASE = window.location.href.replace(/https?:\/\//, '')
+    bus.$once('dash-checkin', this.reserveSlug)
   }
 }
 </script>

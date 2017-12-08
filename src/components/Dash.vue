@@ -24,7 +24,7 @@
             .slim
               a(href="#")
                 i.material-icons(@click="showLoginOrSignup=false") close
-      creator(ref="Creator", @new="refreshDestIndex")
+      creator
       about(:site-name="siteName", v-if="showAbout")
       .about-close(v-if="showAbout")
         a(href="#" @click.prevent="showAbout = false")
@@ -32,12 +32,13 @@
       p.about-link
         a(href="#" @click.prevent="showAbout = true") what is this?
     #destindex-wrap
-      DestIndex#destindex(ref="DestIndex", @refreshed="numDests = Number($event)")
+      DestIndex#destindex
 </template>
 
 <script>
 import About from './About.vue'
 import axios from 'axios'
+import bus from '../bus.js'
 import Creator from './Creator.vue'
 import DestIndex from './DestIndex.vue'
 
@@ -75,8 +76,7 @@ export default {
             this.showLoginOrSignup = false
             this.LOSUsername = ''
             this.LOSPassword = ''
-            this.$refs.Creator.reserveSlug()
-            this.refreshDestIndex()
+            bus.$emit('login')
           } else console.log('login fail')
         }).catch(error => {
           console.log('login fail ' + error.response.data.msg + '\n')
@@ -88,8 +88,7 @@ export default {
           this.showLoginOrSignup = false
           this.LOSUsername = ''
           this.LOSPassword = ''
-          this.$refs.Creator.reserveSlug()
-          this.refreshDestIndex()
+          bus.$emit('dash-login')
         }).catch(error => {
           console.log('login fail ' + error.response.data.msg + '\n')
         })
@@ -99,14 +98,10 @@ export default {
       axios.get('/api/user/logout').then(response => {
         this.username = 'guest'
         this.isRegistered = false
-        this.$refs.Creator.reserveSlug()
-        this.refreshDestIndex()
+        bus.$emit('dash-logout')
       }).catch(error => {
         console.log('logout fail ' + error.response.data.msg + '\n')
       })
-    },
-    refreshDestIndex () {
-      this.$refs.DestIndex.refreshList()
     }
   },
   created () {
@@ -119,6 +114,9 @@ export default {
       bus.$emit('dash-checkin')
     }).catch(error => {
       console.log('session info fail ' + error.response.data.msg + '\n')
+    })
+    bus.$on('destindex-refresh', (numDests) => {
+      this.numDests = numDests
     })
   },
   computed: {

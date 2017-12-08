@@ -13,6 +13,7 @@
 
 <script>
 import axios from 'axios'
+import bus from '../bus.js'
 import DestListing from './DestListing.vue'
 
 export default {
@@ -30,14 +31,17 @@ export default {
         } else {
           this.destList = response.data
         }
-        this.$emit('refreshed', this.destList.length)
+        bus.$emit('destindex-refresh', this.destList.length)
       }).catch(error => {
         console.log('destindex fail: ' + error.response.data.msg)
       })
     }
   },
   created () {
-    this.refreshList()
+    bus.$once('dash-checkin', this.refreshList)
+    bus.$on('dash-login', this.refreshList)
+    bus.$on('dash-logout', this.refreshList)
+    bus.$on('creator-created', this.refreshList)
   },
   components: {
     DestListing
